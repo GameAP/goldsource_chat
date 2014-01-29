@@ -1,0 +1,38 @@
+<?php  if (!defined('BASEPATH')) exit('No direct script access allowed'); ?>
+<a class="small awesome" href="javascript:history.back()">{lang_back}</a><br /><br />
+
+<script type="text/javascript" src="{site_url}chat/js"></script>
+
+<style>
+#chat_body
+{
+    width:800px;
+    margin:8px auto 3px;
+    float:left;
+}
+#chat_text_field /* Стили для текстового поля */
+{
+    overflow:auto;
+    border:1px solid #999;
+    padding:3px;
+    background-color:#000;
+    color:#FFF;
+}
+.chat_post_other
+{
+    margin: 0px , 0px, 2px; 
+}
+</style>
+
+<div id="chat_text_field" style="height:300px;">Loading chat. Wait...</div>
+
+<input id="last_act" name="last_act" type="hidden" value="0" />
+<input id="server_id" name="server_id" type="hidden" value="{server_id}" />
+<input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>" />
+
+<input id="block" name="block" type="hidden" value="no" />
+
+<br />
+<input id="chat_text_input" style="width:70%;" name="chat_text_input" type="text" />
+<input id="chat_button" name="chat_button" type="button" value="Ответить"/>
+
