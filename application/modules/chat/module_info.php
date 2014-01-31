@@ -8,5 +8,5 @@ $module_info['access'] 			= 'user';
 $module_info['developer'] 		= 'ET-NiK';
 $module_info['site'] 			= 'http://hldm.org';
 $module_info['email'] 			= 'nikita@hldm.org';
-$module_info['copyright'] 		= '(c) 2013, ET-NiK (http://hldm.org)';
+$module_info['copyright'] 		= '(c) 2014, ET-NiK (http://hldm.org)';
 $module_info['license'] 		= 'http://www.gameap.ru/license.html';
