@@ -6,7 +6,7 @@
  *
  * @package		Online Chat
  * @author		Nikita Kuznetsov (ET-NiK)
- * @copyright	Copyright (c) 2013, Nikita Kuznetsov (http://hldm.org)
+ * @copyright	Copyright (c) 2013-2014, Nikita Kuznetsov (http://hldm.org)
  * @license		http://www.gameap.ru/license.html
  * @link		http://www.gameap.ru
  * @filesource
@@ -64,12 +64,7 @@ class Ajax extends MX_Controller {
 			/* Сервера с таким id не существет */
 			show_404();
 		}
-		
-		/* Если сервер не локальный и не настроен FTP, то выдаем ошибку */
-		if($this->servers->server_data['ds_id'] && !$this->servers->server_data['ftp_host']){
-			show_404();
-		}
-		
+
 		/* Если не задана команда отправки чата */
 		if (!$this->servers->server_data['sendmsg_cmd']) {
 			show_404();
@@ -121,18 +116,31 @@ class Ajax extends MX_Controller {
     */
     function get()
     {
+		$this->load->helper('ds');
+		
 		$server_id = (int)$this->input->post('server_id');
 		$this->_check_server($server_id);
 		
-		$list_logs = $this->logs->list_server_log('', 'log', 'valve/logs', 5);
+		$game_code = $this->servers->server_data['start_code'];
+		
+		$list_logs = $this->logs->list_server_log('', array('log'), $game_code . '/logs', 5);
 		
 		$list_logs = array_reverse($list_logs);
+		
+		
+		$dir = get_ds_file_path($this->servers->server_data) . '/' . $game_code . '/logs/';
 		
 		// Перебираем логи
 		$logs_data = '';
 		foreach ($list_logs as $arr) {
-			$logs_data .= iconv("UTF-8", "UTF-8//IGNORE", $this->logs->get_log('valve/logs', $arr['file_name']));
+			try {
+				$logs_data .= read_ds_file($dir . $arr['file_name'], $this->servers->server_data);
+			} catch (Exception $e) {
+				// Блаблабла
+			}
 		}
+		
+		$logs_data = iconv("UTF-8", "UTF-8//IGNORE", $logs_data);
 		
 		$logs_data_strings = explode("\n", $logs_data);
 		unset($logs_data);

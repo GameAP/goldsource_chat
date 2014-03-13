@@ -28,9 +28,8 @@ $(document).ready(function () {
 	}
 
 	function get_chat_messages() {
-			
+		
 		if (block == 0) {
-
 			block = 1;
 			
 			var last_act = $('#last_act').val();
@@ -48,6 +47,8 @@ $(document).ready(function () {
 				dataType: 'json',
 				success: function (result)
 				{
+					$('#chat_text_field').html(result);
+					
 					if(result.messages != '') {
 						$('#chat_text_field').html(result.messages);
 					} else {
@@ -56,6 +57,11 @@ $(document).ready(function () {
 					
 					$('#chat_text_field').scrollTop($('#chat_text_field').scrollTop()+100*$('.chat_post_my, .chat_post_other').size()); 
 
+					block = 0;
+				},
+				error: function (result)
+				{
+					$('#chat_text_field').html('No messages');
 					block = 0;
 				}
 			});

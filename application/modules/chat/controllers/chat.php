@@ -6,7 +6,7 @@
  *
  * @package		Chat
  * @author		Nikita Kuznetsov (ET-NiK)
- * @copyright	Copyright (c) 2013, Nikita Kuznetsov (http://hldm.org)
+ * @copyright	Copyright (c) 2013-2014, Nikita Kuznetsov (http://hldm.org)
  * @license		http://www.gameap.ru/license.html
  * @link		http://www.gameap.ru
  * @filesource
@@ -21,6 +21,8 @@ class Chat extends MX_Controller {
 	var $autoload = array(
         'model' => array('users', 'servers', 'servers/dedicated_servers', 'servers/games', 'servers/game_types'),
     );
+    
+	// -----------------------------------------------------------------
 
 	function __construct()
     {
@@ -45,6 +47,8 @@ class Chat extends MX_Controller {
 		$this->tpl_data['profile'] = $this->parser->parse('profile.html', $this->users->tpl_userdata(), true);
     }
     
+	// -----------------------------------------------------------------
+    
     // Отображение информационного сообщения
     function _show_message($message = FALSE, $link = FALSE, $link_text = FALSE)
     {
@@ -68,6 +72,8 @@ class Chat extends MX_Controller {
         $this->parser->parse('main.html', $this->tpl_data);
     }
     
+	// -----------------------------------------------------------------
+    
     function _check_server($server_id) {
 		/* Получение данных сервера */
 		if ($server_id) {
@@ -82,12 +88,6 @@ class Chat extends MX_Controller {
 			redirect('chat');
 		}
 		
-		/* Если сервер не локальный и не настроен FTP, то выдаем ошибку */
-		if ($this->servers->server_data['ds_id'] && !$this->servers->server_data['ftp_host']){
-			$this->_show_message(lang('server_files_ftp_not_set'), site_url('chat'));
-			return FALSE;
-		}
-		
 		/* Если не задана команда отправки чата */
 		if (!$this->servers->server_data['sendmsg_cmd']) {
 			$this->_show_message('Команда отправки сообщения не задана', site_url('chat'));
@@ -96,8 +96,59 @@ class Chat extends MX_Controller {
 		
 		return TRUE;
 	}
+	
+	// -----------------------------------------------------------------
+	
+	/**
+	 * Получение данных фильтра для вставки в шаблон
+	 */
+	private function _get_tpl_filter($filter = false)
+	{
+		if (!$filter) {
+			$filter = $this->users->get_filter('servers_list');
+		}
+		
+		if (empty($this->games->games_list)) {
+			$this->games->get_games_list();
+		}
+		
+		$games_option[0] = '---';
+		foreach($this->games->games_list as &$game) {
+			$games_option[ $game['code'] ] = $game['name'];
+		}
+		
+		$tpl_data['filter_name']			= isset($filter['name']) ? $filter['name'] : '';
+		$tpl_data['filter_ip']				= isset($filter['ip']) ? $filter['ip'] : '';
+		
+		$default = isset($filter['game']) ? $filter['game'] : null;
+		$tpl_data['filter_games_dropdown'] 	= form_dropdown('filter_game', $games_option, $default);
+		
+		return $tpl_data;
+	}
+	
+	// -----------------------------------------------------------------
     
-    // ----------------------------------------------------------------
+    /**
+     * Получение данных сервера для шаблона
+    */
+    private function _get_servers_tpl($filter, $limit = 10000, $offset = 0)
+    {
+		$tpl_data = array();
+		
+		$this->servers->set_filter($filter);
+		
+		/* Получение игровых серверов GoldSource */
+		if (!isset($this->servers_list)) {
+			$this->servers->get_servers_list($this->users->auth_id, 'VIEW', array('enabled' => '1', 'installed' => '1'), $limit, $offset, 'goldsource');
+		}
+		
+		$tpl_data['url'] 			= site_url('admin/servers_files/server');
+		$tpl_data['games_list'] 	= servers_list_to_games_list($this->servers->servers_list);
+
+		return $tpl_data;
+	}
+    
+    // -----------------------------------------------------------------
     
     /**
      * Главная страница чата. Выбор сервера.
@@ -107,10 +158,13 @@ class Chat extends MX_Controller {
     */
     function index()
     {
-		$this->servers->get_server_list($this->users->auth_id);
+		$this->load->helper('games');
 		
-		$local_tpl_data['servers_list'] = $this->servers->tpl_data();
-		$local_tpl_data['url'] 			= site_url('chat/server');
+		$filter = $this->users->get_filter('servers_list');
+		$local_tpl_data = $this->_get_tpl_filter($filter);
+		
+		$local_tpl_data 		+= $this->_get_servers_tpl($filter);
+		$local_tpl_data['url'] 	= site_url('chat/server');
 			
 		$this->tpl_data['content'] = $this->parser->parse('servers/select_server.html', $local_tpl_data, TRUE);
 		$this->parser->parse('main.html', $this->tpl_data);
