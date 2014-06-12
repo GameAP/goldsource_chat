@@ -87,25 +87,25 @@ class Ajax extends MX_Controller {
 		
 		$message = $this->users->auth_data['login'] . ': ' . $this->input->post('message_text');
 		
-		$this->load->model('valve_rcon');
-							
-		$rcon_connect = $this->valve_rcon->connect(
-				$this->servers->server_data['server_ip'], 
-				$this->servers->server_data['server_port'],
-				$this->servers->server_data['rcon'],
-				$this->servers->server_data['engine']
-			);
-			
-		if(@$rcon_connect) {
+		$this->load->driver('rcon');
+		
+		$this->rcon->set_variables(
+					$this->servers->server_data['server_ip'],
+					$this->servers->server_data['rcon_port'],
+					$this->servers->server_data['rcon'], 
+					$this->servers->servers->server_data['engine'],
+					$this->servers->servers->server_data['engine_version']
+		);
+		
+		if ($this->rcon->connect()) {
 			$rcon_command = $this->servers->server_data['sendmsg_cmd'];
 			$rcon_command = str_replace('{msg}', $message, $rcon_command);
-	
-			$rcon_string = $this->valve_rcon->command($rcon_command);
+			
+			$this->rcon->command($rcon_command);
 			$this->output->set_output('success');
 		} else {
-			$this->output->set_output('failed');
+			$this->output->append_output('failed');
 		}
-
 	}
 	
 	// -------------------------------------------------------------
