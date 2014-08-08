@@ -173,3 +173,6 @@ class Ajax extends MX_Controller {
 	}
 
 }
+
+/* End of file ajax.php */
+/* Location: ./application/modules/chat/controllers/ajax.php */
