@@ -106,8 +106,9 @@ class Chat extends MX_Controller {
 	 */
 	private function _get_tpl_filter($filter = false)
 	{
+		$this->load->model('servers/games');
 		$this->load->model('servers');
-		
+
 		if (!$filter) {
 			$filter = $this->users->get_filter('servers_list');
 		}
