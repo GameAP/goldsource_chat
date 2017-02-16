@@ -27,6 +27,8 @@ class Chat extends MX_Controller {
 	function __construct()
     {
         parent::__construct();
+
+        $this->load->model('users');
         
         /* Авторизован ли юзер */
         if (!$this->users->check_user()) {
