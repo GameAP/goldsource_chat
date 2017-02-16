@@ -2,7 +2,7 @@
 
 $module_info['name'] 			= 'Online Chat';										// Имя модуля
 $module_info['description'] 	= 'Онлайн чат на серверах GoldSource';					// Описание
-$module_info['version'] 		= '1.0';												// Версия модуля
+$module_info['version'] 		= '2.0';												// Версия модуля
 $module_info['show_in_menu'] 	= 1;													// Не показывать в меню
 $module_info['access'] 			= 'user';
 $module_info['developer'] 		= 'ET-NiK';
